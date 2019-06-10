@@ -1,0 +1,14 @@
+public void sign(Map<String, Object> params) {
+    params.put("timestamp", String.valueOf(System.currentTimeMillis()));
+    TreeSet<String> keys = new TreeSet<>(params.keySet());
+    StringBuilder stringBuilder = new StringBuilder();
+    for (String s : keys) {
+        if (s.equals("sign")) {
+            continue;
+        }
+        stringBuilder.append(s).append("=").append(params.get(s)).append(";");
+    }
+    stringBuilder.append("key=${key};");
+    //此处使用MD5工具类加密后，以sign参数名称提交到后台即可！
+    params.put("sign", FastMD5Utils.MD5(stringBuilder.toString()));
+}
