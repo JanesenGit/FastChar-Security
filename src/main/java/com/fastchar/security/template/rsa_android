@@ -22,7 +22,7 @@ public static String getToken() {
         }
         byte[] encryptedData = out.toByteArray();
         out.close();
-        return Base64.encodeToString(encryptedData, Base64.DEFAULT);
+        return Base64.encodeToString(encryptedData, Base64.DEFAULT).replace("\n", "");
     } catch (Exception e) {
         e.printStackTrace();
     }

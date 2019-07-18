@@ -3,6 +3,7 @@ package com.fastchar.security;
 import com.fastchar.core.FastChar;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.security.interceptor.FastSecurityGlobalInterceptor;
+import com.fastchar.security.template.FastSecurityAuto;
 
 public class FastSecurityConfig implements IFastConfig {
     /**
@@ -21,6 +22,7 @@ public class FastSecurityConfig implements IFastConfig {
     private String rsaPassword;
     private String rsaPrivateKeyPkcs8;
     private boolean rsaInitial;
+
 
     public FastSecurityConfig() {
         FastChar.getObservable().addObserver(FastSecurityGlobalInterceptor.class);
@@ -79,4 +81,6 @@ public class FastSecurityConfig implements IFastConfig {
         this.debug = debug;
         return this;
     }
+
+
 }

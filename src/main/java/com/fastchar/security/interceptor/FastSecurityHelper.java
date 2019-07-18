@@ -44,25 +44,6 @@ class FastSecurityHelper {
     }
 
 
-    public void sign(Map<String, Object> params) {
-
-        TreeSet<String> keys = new TreeSet<>(params.keySet());
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String s : keys) {
-            if (s.equals("sign")) {
-                continue;
-            }
-            stringBuilder.append(s).append("=").append(params.get(s)).append(";");
-        }
-        stringBuilder.append("key=12312;");
-        //此处使用MD5工具类加密后，以sign参数名称提交到后台即可！
-        params.put("sign", FastMD5Utils.MD5(stringBuilder.toString()));
-    }
-
-
-
-
-
 
     public static void validateRSA(FastAction fastAction, FastSecurityConfig config) throws Exception {
         String token = fastAction.getRequest().getHeader("token");

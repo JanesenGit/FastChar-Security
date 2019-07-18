@@ -18,6 +18,17 @@
                     <target>7</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${basedir}/src/main/java/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
 
         <resources>
@@ -36,7 +47,7 @@
     <packaging>jar</packaging>
     <name>FastChar-Security</name>
     <description>
-        FastChar-Security is a Security framework that uses FastChar framework.
+        FastChar-Security is a FastChar plugin.
     </description>
     <url>http://www.fastchar.com</url>
 
@@ -65,8 +76,8 @@
     </developers>
 
     <scm>
-        <url>https://github.com/JanesenGit/FastChar.git</url>
-        <connection>https://github.com/JanesenGit/FastChar.git</connection>
+        <url>https://github.com/JanesenGit/FastChar-Security.git</url>
+        <connection>https://github.com/JanesenGit/FastChar-Security.git</connection>
         <developerConnection>http://www.fastchar.com</developerConnection>
     </scm>
 

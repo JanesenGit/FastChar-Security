@@ -87,10 +87,11 @@ public class FastSecurityAuto {
             Map<String, Object> params = new HashMap<>();
             params.put("key", md5Key);
 
-            File publicKey = new File(ProjectPath, "security/rsa/rsa_public.pem");
+            File publicKey = new File(ProjectPath, "security/rsa/rsa_public_"+keyLength+".pem");
             new RSABuilder()
-                    .setPrivateKeyFile(new File(ProjectPath, "security/rsa/rsa_private.pem").getAbsolutePath())
-                    .setPrivateKeyPkcs8File(new File(ProjectPath, "security/rsa/rsa_private_pkcs8.pem").getAbsolutePath())
+                    .setKeyLength(keyLength)
+                    .setPrivateKeyFile(new File(ProjectPath, "security/rsa/rsa_private_" + keyLength + ".pem").getAbsolutePath())
+                    .setPrivateKeyPkcs8File(new File(ProjectPath, "security/rsa/rsa_private_pkcs8_" + keyLength + ".pem").getAbsolutePath())
                     .setPublicKeyFile(publicKey.getAbsolutePath())
                     .builder();
 
@@ -133,8 +134,9 @@ public class FastSecurityAuto {
             System.out.println();
             System.out.println(FastChar.getLog().lightStyle("RSA加密的密钥为：" + md5Key));
             System.out.println(FastChar.getLog().lightStyle("请将RSA密码配置到FastSecurityConfig.rsaPassword中！"));
+            System.out.println(FastChar.getLog().lightStyle("请将RSA私钥pkcs8配置到FastSecurityConfig.setRsaPrivateKeyPkcs8中！"));
             System.out.println(FastChar.getLog().lightStyle("JavaScript代码：" + javascriptFile.getAbsolutePath()));
-            System.out.println(FastChar.getLog().lightStyle("JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！"));
+            System.out.println(FastChar.getLog().lightStyle("【重要】JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！"));
             System.out.println(FastChar.getLog().lightStyle("在线混淆：https://javascriptobfuscator.com/Javascript-Obfuscator.aspx"));
             System.out.println(FastChar.getLog().lightStyle("Android代码：" + androidFile.getAbsolutePath()));
             System.out.println(FastChar.getLog().lightStyle("Object-C代码：" + iosFile.getAbsolutePath()));
