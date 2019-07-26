@@ -29,7 +29,7 @@ public class FastSecurityGlobalInterceptor implements IFastInterceptor {
             if (fastSecurity.value() != -1) {
                 securityModule = fastSecurity.value();
             }
-            hasSecurity = true;
+            hasSecurity = fastSecurity.enable();
         }
 
         if (fastAction.getFastRoute().getMethod().isAnnotationPresent(AFastSecurity.class)) {
@@ -37,7 +37,7 @@ public class FastSecurityGlobalInterceptor implements IFastInterceptor {
             if (fastSecurity.value() != -1) {
                 securityModule = fastSecurity.value();
             }
-            hasSecurity = true;
+            hasSecurity = fastSecurity.enable();
         }
         if (hasSecurity) {
             if (securityModule == -1) {

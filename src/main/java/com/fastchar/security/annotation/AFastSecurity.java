@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface AFastSecurity {
     int value() default -1;
+
+    boolean enable() default true;
 }
