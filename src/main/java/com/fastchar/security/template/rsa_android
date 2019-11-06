@@ -1,8 +1,9 @@
+static final AtomicInteger atomicInteger = new AtomicInteger();
 public static String getToken() {
     try {
         Cipher cipher = Cipher.getInstance("RSA/NONE/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, getPublicKey());
-        String content="${key}"+System.currentTimeMillis();
+        String content="${key}_android"+System.currentTimeMillis()+ atomicInteger.incrementAndGet();
         byte[] data = content.getBytes(Charset.forName("UTF-8"));
 
         int inputLen = data.length;

@@ -24,7 +24,7 @@ class FastSecurityHelper {
         String paramSign = fastAction.getParam("sign", "NONE");
 
         if (FastChar.getCache().exists("Security", paramSign)) {
-            fastAction.setStatus(400).responseText("签名错误！");
+            fastAction.setStatus(400).responseText("非法访问！签名已失效！");
         }
         FastChar.getCache().set("Security", paramSign, true);
 
@@ -39,7 +39,7 @@ class FastSecurityHelper {
         stringBuilder.append("key=").append(signKey).append(";");
         String serverSign = FastChar.getSecurity().MD5_Encrypt(stringBuilder.toString());
         if (!paramSign.equalsIgnoreCase(serverSign)) {
-            fastAction.setStatus(400).responseText("签名错误！");
+            fastAction.setStatus(400).responseText("非法访问！签名无效！");
         }
     }
 
@@ -78,14 +78,14 @@ class FastSecurityHelper {
 
         String content = FastChar.getSecurity().RSA_Decrypt_PrivateKey(config.getRsaPrivateKeyPkcs8(), token);
         if (FastStringUtils.isEmpty(content)) {
-            fastAction.setStatus(400).responseText("非法访问！");
+            fastAction.setStatus(400).responseText("非法访问！Token无效！");
         }
         if (FastChar.getCache().exists("Security",content)) {
-            fastAction.setStatus(400).responseText("非法访问！");
+            fastAction.setStatus(400).responseText("非法访问！Token已失效！");
         }
         FastChar.getCache().set("Security", content, true);
         if (!content.startsWith(config.getRsaPassword())) {
-            fastAction.setStatus(400).responseText("非法访问！");
+            fastAction.setStatus(400).responseText("非法访问！Token密钥无效！");
         }
 
     }

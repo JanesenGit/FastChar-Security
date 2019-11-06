@@ -10,6 +10,7 @@ import com.fastchar.utils.FastStringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,14 @@ public class FastSecurityAuto {
         return content;
     }
 
+    private static String formatString(String target, int targetLength) {
+        StringBuilder targetBuilder = new StringBuilder(target);
+        while (FastStringUtils.truthLength(targetBuilder.toString()) < targetLength) {
+            targetBuilder.append(" ");
+        }
+        target = targetBuilder.toString();
+        return target + "： ";
+    }
 
     public static void buildMd5() {
         try {
@@ -57,18 +66,25 @@ public class FastSecurityAuto {
             String ios = FastFileUtils.readFileToString(iosFile, "utf-8");
             FastFileUtils.writeStringToFile(iosFile, replacePlaceholder(params, ios));
 
+            List<String> infos = new ArrayList<>();
+            infos.add("\n" + formatString("1、MD5加签的密钥", 25) + md5Key);
+            infos.add(formatString("2、JavaScript 代码文件", 25) + javascriptFile.getAbsolutePath());
+            infos.add(formatString("3、Android 代码文件", 25) + androidFile.getAbsolutePath());
+            infos.add(formatString("4、Object-C 代码文件", 25) + iosFile.getAbsolutePath());
+            infos.add("\n使用说明：");
+            infos.add("* 请设置 FastSecurityConfig.securityModule 模式为 FastSecurityConfig.MD5_PARAMS_SIGN ");
+            infos.add("* 请将（1、MD5加签的密钥）配置到 FastSecurityConfig.md5Key 中！");
+            infos.add("* JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！");
+            infos.add("* 在线混淆：https://javascriptobfuscator.com/Javascript-Obfuscator.aspx");
+            infos.add("\n构建成功！");
 
-            System.out.println(FastChar.getLog().lightStyle("============================FastSecurity-MD5============================"));
-            System.out.println();
-            System.out.println(FastChar.getLog().lightStyle("MD5加签的密钥为：" + md5Key));
-            System.out.println(FastChar.getLog().lightStyle("请将MD5密钥配置到FastSecurityConfig.md5Key中！"));
-            System.out.println(FastChar.getLog().lightStyle("JavaScript代码：" + javascriptFile.getAbsolutePath()));
-            System.out.println(FastChar.getLog().lightStyle("JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！"));
-            System.out.println(FastChar.getLog().lightStyle("在线混淆：https://javascriptobfuscator.com/Javascript-Obfuscator.aspx"));
-            System.out.println(FastChar.getLog().lightStyle("Android代码：" + androidFile.getAbsolutePath()));
-            System.out.println(FastChar.getLog().lightStyle("Object-C代码：" + iosFile.getAbsolutePath()));
-            System.out.println();
-            System.out.println(FastChar.getLog().lightStyle("============================FastSecurity-MD5============================"));
+            StringBuilder infoBuilder = new StringBuilder();
+            for (String info : infos) {
+                infoBuilder.append(info).append("\n");
+            }
+            System.out.println(FastChar.getLog().lightStyle(infoBuilder.toString()));
+            File buildFile = new File(ProjectPath, "/security/md5/build-info.txt");
+            FastFileUtils.writeStringToFile(buildFile, infoBuilder.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -77,6 +93,7 @@ public class FastSecurityAuto {
     public static void buildRsa() {
         buildRsa(1024);
     }
+
     public static void buildRsa(int keyLength) {
         try {
             if (FastStringUtils.isEmpty(ProjectPath)) {
@@ -87,13 +104,13 @@ public class FastSecurityAuto {
             Map<String, Object> params = new HashMap<>();
             params.put("key", md5Key);
 
-            File publicKey = new File(ProjectPath, "security/rsa/rsa_public_"+keyLength+".pem");
-            new RSABuilder()
+            File publicKey = new File(ProjectPath, "security/rsa/rsa_public_" + keyLength + ".pem");
+            RSABuilder rsaBuilder = new RSABuilder()
                     .setKeyLength(keyLength)
                     .setPrivateKeyFile(new File(ProjectPath, "security/rsa/rsa_private_" + keyLength + ".pem").getAbsolutePath())
                     .setPrivateKeyPkcs8File(new File(ProjectPath, "security/rsa/rsa_private_pkcs8_" + keyLength + ".pem").getAbsolutePath())
-                    .setPublicKeyFile(publicKey.getAbsolutePath())
-                    .builder();
+                    .setPublicKeyFile(publicKey.getAbsolutePath());
+            rsaBuilder.builder();
 
             StringBuilder stringBuilder = new StringBuilder();
             List<String> strings = FastFileUtils.readLines(publicKey);
@@ -111,6 +128,7 @@ public class FastSecurityAuto {
             FastFileUtils.copyURLToFile(javascriptTemplate, javascriptFile);
             String javascript = FastFileUtils.readFileToString(javascriptFile, "utf-8");
             FastFileUtils.writeStringToFile(javascriptFile, replacePlaceholder(params, javascript));
+
 
             URL androidTemplate = FastSecurityAuto.class.getResource("rsa_android");
             File androidFile = new File(ProjectPath, "/security/rsa/android_code.txt");
@@ -130,24 +148,34 @@ public class FastSecurityAuto {
             String ios = FastFileUtils.readFileToString(iosFile, "utf-8");
             FastFileUtils.writeStringToFile(iosFile, replacePlaceholder(params, ios));
 
-            System.out.println(FastChar.getLog().lightStyle("============================FastSecurity-RSA============================"));
-            System.out.println();
-            System.out.println(FastChar.getLog().lightStyle("RSA加密的密钥为：" + md5Key));
-            System.out.println(FastChar.getLog().lightStyle("请将RSA密码配置到FastSecurityConfig.rsaPassword中！"));
-            System.out.println(FastChar.getLog().lightStyle("请将RSA私钥pkcs8配置到FastSecurityConfig.setRsaPrivateKeyPkcs8中！"));
-            System.out.println(FastChar.getLog().lightStyle("JavaScript代码：" + javascriptFile.getAbsolutePath()));
-            System.out.println(FastChar.getLog().lightStyle("【重要】JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！"));
-            System.out.println(FastChar.getLog().lightStyle("在线混淆：https://javascriptobfuscator.com/Javascript-Obfuscator.aspx"));
-            System.out.println(FastChar.getLog().lightStyle("Android代码：" + androidFile.getAbsolutePath()));
-            System.out.println(FastChar.getLog().lightStyle("Object-C代码：" + iosFile.getAbsolutePath()));
-            System.out.println();
-            System.out.println(FastChar.getLog().lightStyle("============================FastSecurity-RSA============================"));
-
+            List<String> infos = new ArrayList<>();
+            infos.add("\n");
+            infos.add(formatString("1、RSA 加密密钥", 25) + md5Key);
+            infos.add(formatString("2、RSA 私钥文件", 25) + rsaBuilder.getPrivateKeyFile());
+            infos.add(formatString("3、RSA 私钥pkcs8文件", 25) + rsaBuilder.getPrivateKeyPkcs8File());
+            infos.add(formatString("4、RSA 公钥文件", 25) + rsaBuilder.getPublicKeyFile());
+            infos.add(formatString("5、JavaScript 代码文件", 25) + javascriptFile.getAbsolutePath());
+            infos.add(formatString("6、Android 代码文件", 25) + androidFile.getAbsolutePath());
+            infos.add(formatString("7、Object-C 代码文件", 25) + iosFile.getAbsolutePath());
+            infos.add("\n");
+            infos.add("使用说明：");
+            infos.add("* 请设置 FastSecurityConfig.securityModule 模式为 FastSecurityConfig.RSA_HEADER_TOKEN ");
+            infos.add("* 请将（1、RSA加密的密钥）配置到 FastSecurityConfig.rsaPassword 中！");
+            infos.add("* 请将（3、RSA 私钥pkcs8文件）配置到 FastSecurityConfig.rsaPrivateKeyPkcs8 中！");
+            infos.add("* JavaScript的密钥直接存在代码中，建议在进行JavaScript文件加密混淆！");
+            infos.add("* 在线混淆：https://javascriptobfuscator.com/Javascript-Obfuscator.aspx");
+            infos.add("\n");
+            infos.add("构建成功！");
+            StringBuilder infoBuilder = new StringBuilder();
+            for (String info : infos) {
+                infoBuilder.append(info).append("\n");
+            }
+            System.out.println(FastChar.getLog().lightStyle(infoBuilder.toString()));
+            File buildFile = new File(ProjectPath, "/security/rsa/build-info.txt");
+            FastFileUtils.writeStringToFile(buildFile, infoBuilder.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
 

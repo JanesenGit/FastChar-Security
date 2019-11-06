@@ -1,6 +1,8 @@
 package com.fastchar.security.exception;
 
 public class FastSecurityException extends RuntimeException {
+    private static final long serialVersionUID = -8608274243087991509L;
+
     public FastSecurityException() {
     }
 

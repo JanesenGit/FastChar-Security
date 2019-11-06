@@ -24,6 +24,7 @@ public class FastSecurityGlobalInterceptor implements IFastInterceptor {
 
         int securityModule = -1;
         boolean hasSecurity = false;
+
         if (fastAction.getClass().isAnnotationPresent(AFastSecurity.class)) {
             AFastSecurity fastSecurity = fastAction.getClass().getAnnotation(AFastSecurity.class);
             if (fastSecurity.value() != -1) {
@@ -39,6 +40,15 @@ public class FastSecurityGlobalInterceptor implements IFastInterceptor {
             }
             hasSecurity = fastSecurity.enable();
         }
+
+        if (config.isExcludeUrl(fastAction.getFastRoute().getRoute())) {
+            hasSecurity = false;
+        }
+
+        if (config.isExcludeRemote(fastAction.getRemoveIp())) {
+            hasSecurity = false;
+        }
+
         if (hasSecurity) {
             if (securityModule == -1) {
                 securityModule = config.getSecurityModule();
