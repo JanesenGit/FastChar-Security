@@ -3,8 +3,11 @@ package com.fastchar.security;
 import com.fastchar.core.FastChar;
 import com.fastchar.interfaces.IFastConfig;
 import com.fastchar.security.interceptor.FastSecurityGlobalInterceptor;
+import com.fastchar.utils.FastFileUtils;
 import com.fastchar.utils.FastStringUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +31,6 @@ public class FastSecurityConfig implements IFastConfig {
     private String md5Key;
     private String rsaPassword;
     private String rsaPrivateKeyPkcs8;
-    private boolean rsaInitial;
     private List<String> excludeUrls = new ArrayList<>();
     private List<String> excludeRemote = new ArrayList<>();
 
@@ -39,6 +41,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 获取安全验证码模式
+     *
      * @return 模式
      */
     public int getSecurityModule() {
@@ -47,6 +50,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 设置安全验证码模式
+     *
      * @param securityModule 安全验证模式：MD5_PARAMS_SIGN 和 RSA_HEADER_TOKEN 和 MD5_PARAMS_SIGN|RSA_HEADER_TOKEN
      * @return 当前对象
      */
@@ -57,6 +61,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 获取MD5密钥，安全模式为：MD5_PARAMS_SIGN 有效
+     *
      * @return 字符串
      */
     public String getMd5Key() {
@@ -65,6 +70,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 设置MD5密钥，安全模式为：MD5_PARAMS_SIGN 有效
+     *
      * @param md5Key 密钥
      * @return 当前对象
      */
@@ -75,6 +81,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 获取RSA私钥pkcs8格式，可为.pem文件名或字符串密钥
+     *
      * @return .pem文件名路径或字符串密钥
      */
     public String getRsaPrivateKeyPkcs8() {
@@ -83,16 +90,35 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 设置RSA私钥pkcs8格式 可为.pem文件名或字符串密钥，当为.pem文件名时该文件必须存在于/src目录下
+     *
      * @param rsaPrivateKeyPkcs8 .pem文件名或字符串密钥
      * @return 当前对象
      */
     public FastSecurityConfig setRsaPrivateKeyPkcs8(String rsaPrivateKeyPkcs8) {
+        if (rsaPrivateKeyPkcs8.endsWith(".pem")) {
+            File privateKeyFile = new File(FastChar.getPath().getClassRootPath(), rsaPrivateKeyPkcs8);
+            if (privateKeyFile.exists()) {
+                StringBuilder stringBuilder = new StringBuilder();
+                try {
+                    List<String> strings = FastFileUtils.readLines(privateKeyFile);
+                    for (String line : strings) {
+                        if (line.startsWith("-")) {
+                            continue;
+                        }
+                        stringBuilder.append(line);
+                    }
+                } catch (Exception ignored) {
+                }
+                rsaPrivateKeyPkcs8 = stringBuilder.toString();
+            }
+        }
         this.rsaPrivateKeyPkcs8 = rsaPrivateKeyPkcs8;
         return this;
     }
 
     /**
      * 获取RSA密钥
+     *
      * @return 字符串
      */
     public String getRsaPassword() {
@@ -101,20 +127,12 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 设置RSA验证的密钥，一般为MD5加密后的字符串
+     *
      * @param rsaPassword 密钥
      * @return 当前对象
      */
     public FastSecurityConfig setRsaPassword(String rsaPassword) {
         this.rsaPassword = rsaPassword;
-        return this;
-    }
-
-    public boolean isRsaInitial() {
-        return rsaInitial;
-    }
-
-    public FastSecurityConfig setRsaInitial(boolean rsaInitial) {
-        this.rsaInitial = rsaInitial;
         return this;
     }
 
@@ -141,6 +159,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 排除指定远程请求的接口地址不做安全验证
+     *
      * @param addressPattern 远程地址匹配符
      * @return 当前对象
      */
@@ -152,6 +171,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 判断url是否被排除安全验证
+     *
      * @param url 路径
      * @return 布尔值
      */
@@ -166,6 +186,7 @@ public class FastSecurityConfig implements IFastConfig {
 
     /**
      * 判断ip地址是否被排除安全验证
+     *
      * @param address ip地址
      * @return 布尔值
      */

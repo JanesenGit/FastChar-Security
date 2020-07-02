@@ -6,6 +6,7 @@ import com.fastchar.security.FastSecurityConfig;
 import com.fastchar.security.exception.FastSecurityException;
 import com.fastchar.utils.FastFileUtils;
 import com.fastchar.utils.FastMD5Utils;
+import com.fastchar.utils.FastNumberUtils;
 import com.fastchar.utils.FastStringUtils;
 
 import java.io.File;
@@ -24,7 +25,7 @@ class FastSecurityHelper {
         String paramSign = fastAction.getParam("sign", "NONE");
 
         if (FastChar.getCache().exists("Security", paramSign)) {
-            fastAction.setStatus(400).responseText("非法访问！签名已失效！");
+            fastAction.setStatus(403).responseText("非法访问！签名已失效！");
         }
         FastChar.getCache().set("Security", paramSign, true);
 
@@ -39,7 +40,7 @@ class FastSecurityHelper {
         stringBuilder.append("key=").append(signKey).append(";");
         String serverSign = FastChar.getSecurity().MD5_Encrypt(stringBuilder.toString());
         if (!paramSign.equalsIgnoreCase(serverSign)) {
-            fastAction.setStatus(400).responseText("非法访问！签名无效！");
+            fastAction.setStatus(403).responseText("非法访问！签名无效！");
         }
     }
 
@@ -48,7 +49,7 @@ class FastSecurityHelper {
     public static void validateRSA(FastAction fastAction, FastSecurityConfig config) throws Exception {
         String token = fastAction.getRequest().getHeader("token");
         if (FastStringUtils.isEmpty(token)) {
-            fastAction.setStatus(400).responseText("非法访问！");
+            fastAction.setStatus(403).responseText("非法访问！");
         }
         if (FastStringUtils.isEmpty(config.getRsaPrivateKeyPkcs8())) {
             throw new FastSecurityException("RSA验证的privateKey不可为空！");
@@ -58,34 +59,19 @@ class FastSecurityHelper {
             throw new FastSecurityException("RSA验证的password不可为空！");
         }
 
-        if (!config.isRsaInitial()) {
-            config.setRsaInitial(true);
-            String privateKey = config.getRsaPrivateKeyPkcs8();
-            File privateKeyFile = new File(FastChar.getPath().getClassRootPath(),privateKey);
-            if (privateKeyFile.exists()) {
-                StringBuilder stringBuilder = new StringBuilder();
-                List<String> strings = FastFileUtils.readLines(privateKeyFile);
-                for (String line : strings) {
-                    if (line.startsWith("-")) {
-                        continue;
-                    }
-                    stringBuilder.append(line);
-                }
-                privateKey = stringBuilder.toString();
-                config.setRsaPrivateKeyPkcs8(privateKey);
-            }
-        }
-
         String content = FastChar.getSecurity().RSA_Decrypt_PrivateKey(config.getRsaPrivateKeyPkcs8(), token);
         if (FastStringUtils.isEmpty(content)) {
-            fastAction.setStatus(400).responseText("非法访问！Token无效！");
+            fastAction.setStatus(403).responseText("非法访问！Token无效！");
         }
         if (FastChar.getCache().exists("Security",content)) {
-            fastAction.setStatus(400).responseText("非法访问！Token已失效！");
+            int hasCode = FastNumberUtils.formatToInt(FastChar.getCache().get("Security", content));
+            if (fastAction.hashCode() != hasCode) {
+                fastAction.setStatus(403).responseText("非法访问！Token已失效！");
+            }
         }
-        FastChar.getCache().set("Security", content, true);
+        FastChar.getCache().set("Security", content, fastAction.hashCode());
         if (!content.startsWith(config.getRsaPassword())) {
-            fastAction.setStatus(400).responseText("非法访问！Token密钥无效！");
+            fastAction.setStatus(403).responseText("非法访问！Token密钥无效！");
         }
 
     }

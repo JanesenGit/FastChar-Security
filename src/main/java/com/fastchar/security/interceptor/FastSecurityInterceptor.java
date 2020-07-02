@@ -22,6 +22,17 @@ public class FastSecurityInterceptor implements IFastInterceptor {
             fastAction.invoke();
             return;
         }
+
+        if (config.isExcludeUrl(fastAction.getFastRoute().getRoute())) {
+            fastAction.invoke();
+            return;
+        }
+
+        if (config.isExcludeRemote(fastAction.getRemoteIp())) {
+            fastAction.invoke();
+            return;
+        }
+
         if (config.getSecurityModule() != -1) {
             if (config.getSecurityModule() == FastSecurityConfig.MD5_PARAMS_SIGN) {
                 FastSecurityHelper.validateMD5Sign(fastAction, config);

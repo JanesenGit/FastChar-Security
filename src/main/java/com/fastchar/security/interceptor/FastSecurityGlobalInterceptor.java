@@ -45,7 +45,7 @@ public class FastSecurityGlobalInterceptor implements IFastInterceptor {
             hasSecurity = false;
         }
 
-        if (config.isExcludeRemote(fastAction.getRemoveIp())) {
+        if (config.isExcludeRemote(fastAction.getRemoteIp())) {
             hasSecurity = false;
         }
 
